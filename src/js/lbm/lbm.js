@@ -1,7 +1,7 @@
 // defaults
-var lbm_options = {
+lbm_options = {
 	omega: 1.7,
-	c: 1,
+	c: 2,
 	rows: 100,
 	cols: 100,
 	steps_per_frame: 5
@@ -179,17 +179,22 @@ function get_equi(subcell_num, density, velocity, v_dot_v) {
 }
 
 function set_options(options) {
+	
 	for (var key in options) {
 		if (options.hasOwnProperty(key)) {
 			// option of scenario has higher priority
 			if (active_scenario !== undefined && active_scenario.options.hasOwnProperty(key)) {
-				active_scenario.options[key] = value[key];
+				active_scenario.options[key] = options[key];
 			} else if (lbm_options.hasOwnProperty(key)) {
 				lbm_options[key] = options[key];
 			}
 		}
 	}
+	if(active_scenario !== undefined){
+		active_scenario.options = options
+	}
 
+	//console.log(active_scenario.options)
 	update_values();
 }
 
@@ -222,10 +227,10 @@ function set_scenario(scenario) {
 	}
 }
 
-function run_sim() {
+function run_sim(value) {
 	stop_sim();
 	if (active_scenario !== undefined) {
-		init();
+		init(value);
 	}
 	start_sim();
 }
@@ -247,6 +252,11 @@ function mouse_click(x, y) {
 	}
 }
 
+function set_obstacle(value){
+	obstacles = value;
+
+}
+
 function message(cmd, value) {
 	postMessage(JSON.stringify({cmd: cmd, value: value}));
 }
@@ -260,7 +270,7 @@ self.onmessage = function(ev) {
 			set_options(value);
 			break;
 		case "run":
-			run_sim();
+			run_sim(value);
 			break;
 		case "stop":
 			stop_sim();
@@ -274,17 +284,25 @@ self.onmessage = function(ev) {
 		case "select":
 			set_scenario(value);
 			break;
+		case "set_obstacle":
+			set_obstacle(value)
+			break
 	}
 };
 
-function init() {
+function init(initGrid) {
 	update_values();
-
 	make_cells(options.cols, options.rows);
 	active_scenario.init_cells(cells1);
 	active_scenario.init_cells(cells2);
+	/*
 	if (active_scenario.init_obstacles !== undefined) {
 		active_scenario.init_obstacles(obstacles);
+	}*/
+	/**/
+	if(initGrid !== undefined){
+		obstacles = initGrid
 	}
+
 	cells = cells1;
 }

@@ -47,6 +47,7 @@ function on_body_load() {
 	// populate select with scenarios
 	for (var i in SCENARIOS) {
 		if (SCENARIOS.hasOwnProperty(i)) {
+			console.log(i, SCENARIOS[i])
 			var elem = document.createElement("option");
 			elem.value = i;
 			elem.text = SCENARIOS[i];
